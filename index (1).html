@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>張啓楷｜演講稿生成器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #1a1410;
+    --ink2: #4a3f35;
+    --ink3: #8a7a6e;
+    --paper: #faf7f2;
+    --paper2: #f2ede4;
+    --paper3: #e8e0d4;
+    --gold: #b8973a;
+    --gold2: #d4b05a;
+    --tpp: #1B4F8A;
+    --tpp-light: #e8f0f9;
+    --red: #c0392b;
+    --green: #1a6b45;
+    --radius: 4px;
+    --radius-lg: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+  }
+
+  /* Top bar */
+  .topbar {
+    background: var(--tpp);
+    color: #fff;
+    padding: 0 2rem;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--gold);
+  }
+  .topbar-brand {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topbar-brand span { color: var(--gold2); }
+  .topbar-sub { font-size: 12px; color: rgba(255,255,255,0.6); letter-spacing: 0.05em; }
+
+  /* Layout */
+  .page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 2.5rem 0 2rem;
+    border-bottom: 1px solid var(--paper3);
+    margin-bottom: 2rem;
+  }
+  .hero-label {
+    display: inline-block;
+    background: var(--tpp-light);
+    color: var(--tpp);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(27,79,138,0.2);
+  }
+  .hero h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.4;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+  .hero h1 em { color: var(--tpp); font-style: normal; }
+  .hero p { font-size: 14px; color: var(--ink3); line-height: 1.7; }
+
+  /* Form card */
+  .card {
+    background: #fff;
+    border: 1px solid var(--paper3);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--paper2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background: var(--gold);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Fields */
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .row.trio { grid-template-columns: 1fr 1fr 1fr; }
+  .row.full { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--ink2); font-weight: 500; letter-spacing: 0.03em; }
+  .field input, .field select, .field textarea {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--paper3);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--tpp);
+    background: #fff;
+  }
+  .field textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
+
+  /* Tags */
+  .tag-label { font-size: 12px; color: var(--ink2); font-weight: 500; margin-bottom: 8px; letter-spacing: 0.03em; }
+  .tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tag {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--paper3);
+    background: var(--paper);
+    color: var(--ink2);
+    transition: all 0.15s;
+    user-select: none;
+    line-height: 1;
+  }
+  .tag:hover { border-color: var(--tpp); color: var(--tpp); }
+  .tag.on { background: var(--tpp); border-color: var(--tpp); color: #fff; }
+
+  /* Tone picker */
+  .tone-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 6px; }
+  .tone-opt {
+    border: 1px solid var(--paper3);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    background: var(--paper);
+  }
+  .tone-opt:hover { border-color: var(--tpp); }
+  .tone-opt.on { border-color: var(--tpp); background: var(--tpp-light); }
+  .tone-opt .t-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+  .tone-opt .t-desc { font-size: 11px; color: var(--ink3); margin-top: 3px; }
+  .tone-opt.on .t-name { color: var(--tpp); }
+
+  /* Duration slider */
+  .slider-row { display: flex; align-items: center; gap: 12px; }
+  .slider-row input[type=range] {
+    flex: 1;
+    accent-color: var(--tpp);
+    height: 4px;
+    cursor: pointer;
+  }
+  .slider-val {
+    font-size: 20px;
+    font-weight: 600;
+    font-family: 'Noto Serif TC', serif;
+    color: var(--tpp);
+    min-width: 50px;
+    text-align: right;
+  }
+  .slider-val span { font-size: 13px; font-weight: 400; color: var(--ink3); margin-left: 2px; }
+
+  /* Generate button */
+  .gen-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--tpp);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .gen-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+  .gen-btn:hover { background: #153e70; transform: translateY(-1px); }
+  .gen-btn:active { transform: translateY(0); }
+  .gen-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* Output */
+  .output-section { margin-top: 2rem; display: none; }
+  .output-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .output-header h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .output-header .badge {
+    font-size: 11px;
+    background: var(--tpp-light);
+    color: var(--tpp);
+    border: 1px solid rgba(27,79,138,0.2);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .tabs { display: flex; gap: 4px; margin-bottom: 1rem; border-bottom: 1px solid var(--paper3); padding-bottom: 0; }
+  .tab-btn {
+    padding: 9px 18px;
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--ink3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    font-weight: 400;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.on { color: var(--tpp); border-bottom-color: var(--tpp); font-weight: 500; }
+  .tab-pane { display: none; }
+  .tab-pane.on { display: block; }
+  .output-card {
+    background: #fff;
+    border: 1px solid var(--paper3);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    position: relative;
+  }
+  .output-text {
+    font-size: 14px;
+    line-height: 2;
+    color: var(--ink);
+    white-space: pre-wrap;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: var(--paper2);
+    border: 1px solid var(--paper3);
+    border-radius: var(--radius);
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--ink2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: var(--tpp-light); border-color: var(--tpp); color: var(--tpp); }
+  .copy-btn.copied { background: #e8f5ec; border-color: #1a6b45; color: var(--green); }
+
+  /* Loading state */
+  .loading-box {
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+  .dots {
+    display: inline-flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .dots span {
+    width: 8px; height: 8px;
+    background: var(--tpp);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+  .loading-box p { font-size: 14px; color: var(--ink3); }
+
+  /* Footer */
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--paper3);
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink3);
+    line-height: 1.8;
+  }
+  footer strong { color: var(--tpp); font-weight: 500; }
+
+  @media (max-width: 600px) {
+    .row, .row.trio { grid-template-columns: 1fr; }
+    .tone-row { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 22px; }
+    .topbar { padding: 0 1rem; }
+    .page { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-brand">
+    <span>張啓楷</span> 2026 嘉義市長選舉
+  </div>
+  <div class="topbar-sub">民眾黨 · 中央黨部組織部</div>
+</nav>
+
+<div class="page">
+  <div class="hero">
+    <div class="hero-label">AI 演講輔助工具</div>
+    <h1>場合演講稿<em>智能生成器</em></h1>
+    <p>輸入場合資訊，自動生成個人化演講稿、場合注意事項與重點提示卡</p>
+  </div>
+
+  <!-- 場合資訊 -->
+  <div class="card">
+    <div class="card-title">場合基本資訊</div>
+    <div class="row">
+      <div class="field">
+        <label>活動名稱 / 地點</label>
+        <input type="text" id="event-name" placeholder="例：東市場里民大會、文化路廟口晚會" />
+      </div>
+      <div class="field">
+        <label>活動日期</label>
+        <input type="date" id="event-date" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>預估出席人數</label>
+        <input type="number" id="audience-size" placeholder="例：80" min="1" />
+      </div>
+      <div class="field">
+        <label>活動性質</label>
+        <select id="event-type">
+          <option value="">請選擇…</option>
+          <option value="里民大會">里民大會</option>
+          <option value="廟口晚會">廟口晚會</option>
+          <option value="座談會">座談會</option>
+          <option value="市場掃街">市場掃街</option>
+          <option value="青年論壇">青年論壇</option>
+          <option value="校園拜訪">校園拜訪</option>
+          <option value="農漁業場合">農漁業場合</option>
+          <option value="商圈拜訪">商圈拜訪</option>
+          <option value="宗教活動">宗教活動</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:14px">
+      <label>發言時間</label>
+      <div class="slider-row">
+        <span style="font-size:12px;color:var(--ink3)">1分</span>
+        <input type="range" id="duration" min="1" max="20" value="5" step="1"
+               oninput="document.getElementById('dur-val').textContent=this.value" />
+        <span style="font-size:12px;color:var(--ink3)">20分</span>
+        <div class="slider-val"><span id="dur-val">5</span><span>分鐘</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="tag-label">主要出席族群（可複選）</div>
+      <div class="tag-wrap" id="audience-tags">
+        <span class="tag" data-v="長輩里民">長輩里民</span>
+        <span class="tag" data-v="青年族群">青年族群</span>
+        <span class="tag" data-v="家長學生">家長學生</span>
+        <span class="tag" data-v="商圈業者">商圈業者</span>
+        <span class="tag" data-v="農業農民">農業農民</span>
+        <span class="tag" data-v="社區志工">社區志工</span>
+        <span class="tag" data-v="宗教團體">宗教團體</span>
+        <span class="tag" data-v="民眾黨支持者">民眾黨支持者</span>
+        <span class="tag" data-v="中間選民">中間選民</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 政見主題 -->
+  <div class="card">
+    <div class="card-title">演講重點設定</div>
+    <div>
+      <div class="tag-label">本次強調政見主題（可複選）</div>
+      <div class="tag-wrap" id="policy-tags">
+        <span class="tag" data-v="交通改善">交通改善</span>
+        <span class="tag" data-v="青年就業">青年就業</span>
+        <span class="tag" data-v="老人福利">老人福利</span>
+        <span class="tag" data-v="環境整潔">環境整潔</span>
+        <span class="tag" data-v="市場活化">市場活化</span>
+        <span class="tag" data-v="教育資源">教育資源</span>
+        <span class="tag" data-v="觀光推廣">觀光推廣</span>
+        <span class="tag" data-v="數位治理">數位治理</span>
+        <span class="tag" data-v="廉能政府">廉能政府</span>
+        <span class="tag" data-v="社區建設">社區建設</span>
+        <span class="tag" data-v="停車問題">停車問題</span>
+        <span class="tag" data-v="夜市經濟">夜市經濟</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>額外說明（現場特殊資訊、需點名感謝的人、地方議題等）</label>
+      <textarea id="extra" placeholder="例：現場有東區里長陳志明、剛完成的道路整修、選民反映停車不足問題…"></textarea>
+    </div>
+  </div>
+
+  <!-- 風格 -->
+  <div class="card">
+    <div class="card-title">演講風格</div>
+    <div class="tone-row" id="tone-row">
+      <div class="tone-opt on" data-v="親切溫暖">
+        <div class="t-name">親切溫暖</div>
+        <div class="t-desc">貼近生活、拉近距離</div>
+      </div>
+      <div class="tone-opt" data-v="激勵進取">
+        <div class="t-name">激勵進取</div>
+        <div class="t-desc">鼓舞人心、充滿能量</div>
+      </div>
+      <div class="tone-opt" data-v="理性專業">
+        <div class="t-name">理性專業</div>
+        <div class="t-desc">數據佐證、政策論述</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="gen-btn" id="gen-btn" onclick="generate()">
+    ✦ 立即生成演講稿
+  </button>
+
+  <!-- Output -->
+  <div class="output-section" id="output-section">
+    <div class="output-header">
+      <h2>生成結果</h2>
+      <div class="badge" id="event-badge"></div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn on" onclick="switchTab('notes',this)">場合注意事項</button>
+      <button class="tab-btn" onclick="switchTab('speech',this)">演講稿全文</button>
+      <button class="tab-btn" onclick="switchTab('bullets',this)">重點提示卡</button>
+    </div>
+    <div id="tab-notes" class="tab-pane on">
+      <div class="output-card">
+        <button class="copy-btn" onclick="copyTab('notes',this)">⎘ 複製</button>
+        <div class="output-text" id="text-notes"></div>
+      </div>
+    </div>
+    <div id="tab-speech" class="tab-pane">
+      <div class="output-card">
+        <button class="copy-btn" onclick="copyTab('speech',this)">⎘ 複製</button>
+        <div class="output-text" id="text-speech"></div>
+      </div>
+    </div>
+    <div id="tab-bullets" class="tab-pane">
+      <div class="output-card">
+        <button class="copy-btn" onclick="copyTab('bullets',this)">⎘ 複製</button>
+        <div class="output-text" id="text-bullets"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <strong>張啓楷 2026 嘉義市長</strong>｜民眾黨中央黨部組織部<br/>
+    本工具僅供內部輔選使用，由 AI 生成，請參選人自行調整潤飾
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('#audience-tags .tag, #policy-tags .tag').forEach(t =>
+  t.addEventListener('click', () => t.classList.toggle('on'))
+);
+document.querySelectorAll('#tone-row .tone-opt').forEach(opt =>
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#tone-row .tone-opt').forEach(o => o.classList.remove('on'));
+    opt.classList.add('on');
+  })
+);
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('tab-' + name).classList.add('on');
+  btn.classList.add('on');
+}
+
+function copyTab(name, btn) {
+  const text = document.getElementById('text-' + name).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ 已複製';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '⎘ 複製'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+async function generate() {
+  const eventName = document.getElementById('event-name').value.trim() || '嘉義市活動';
+  const eventDate = document.getElementById('event-date').value || '近期';
+  const eventType = document.getElementById('event-type').value || '活動';
+  const size = document.getElementById('audience-size').value || '不確定';
+  const duration = document.getElementById('duration').value;
+  const extra = document.getElementById('extra').value.trim();
+  const audiences = [...document.querySelectorAll('#audience-tags .tag.on')].map(t => t.dataset.v);
+  const policies = [...document.querySelectorAll('#policy-tags .tag.on')].map(t => t.dataset.v);
+  const tone = document.querySelector('#tone-row .tone-opt.on')?.dataset.v || '親切溫暖';
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.textContent = '生成中…';
+
+  const outSec = document.getElementById('output-section');
+  outSec.style.display = 'block';
+  ['notes','speech','bullets'].forEach(k => {
+    document.getElementById('text-' + k).innerHTML =
+      '<div class="loading-box"><div class="dots"><span></span><span></span><span></span></div><p>AI 正在為張啓楷量身生成…</p></div>';
+  });
+  document.getElementById('event-badge').textContent = eventName;
+
+  const wordCount = parseInt(duration) * 180;
+  const prompt = `你是民眾黨嘉義市長候選人張啓楷的競選幕僚，負責撰寫演講稿。
+
+【場合資訊】
+活動：${eventName}（${eventType}）
+日期：${eventDate}
+人數：${size}人
+時間：${duration}分鐘
+族群：${audiences.length ? audiences.join('、') : '一般市民'}
+主題：${policies.length ? policies.join('、') : '整體施政理念'}
+風格：${tone}
+補充：${extra || '無'}
+
+請依序生成三個段落，使用以下分隔符（不要有多餘說明）：
+
+===NOTES===
+【場合注意事項】3點，每點2-3句，涵蓋：①開場稱呼與暖場方式 ②這個族群最在意的點與禁忌 ③結尾收尾建議
+
+===SPEECH===
+【演講稿全文】約${wordCount}字，口語化、真誠有溫度，符合${tone}風格。必須包含：嘉義在地情感、民眾黨改革精神、具體政見內容、有力的開場白、明確的行動呼籲結語。
+
+===BULLETS===
+【現場提示卡】供張啓楷進場前30秒快速瀏覽：
+- 本場金句3條（可直接說出口）
+- 在地細節2-3點（地名、人名、議題）
+- 核心訊息1句（本場最重要的一句話）`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const full = data.content.map(c => c.text || '').join('');
+
+    const getSection = (key, next) => {
+      const re = new RegExp(`===${key}===([\\s\\S]*?)(?:===${next}===|$)`);
+      const m = full.match(re);
+      return m ? m[1].trim() : full;
+    };
+
+    document.getElementById('text-notes').textContent = getSection('NOTES', 'SPEECH');
+    document.getElementById('text-speech').textContent = getSection('SPEECH', 'BULLETS');
+    document.getElementById('text-bullets').textContent = getSection('BULLETS', 'END');
+
+    outSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(e) {
+    document.getElementById('text-notes').textContent = '生成失敗，請確認網路連線後重試。';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✦ 重新生成';
+}
+
+// Set today's date as default
+document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
